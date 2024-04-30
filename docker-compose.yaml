@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  python_container:
+    image: ubuntu:latest
+    container_name: python_container
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.2
+    ports:
+      - 5000:5000
+    volumes:
+      - /home/ubuntu/files/python-server:/mount
+    command: ["bash", "-c", "apt-get update && apt-get install -y python3 \
+     && apt-get install -y pip \
+     && pip install flask --break-system-packages \
+     && python3 /mount/server.py"]
+
+  java_container:
+    image: ubuntu:latest
+    container_name: java_container
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.3
+    ports:
+      - 3000:3000
+    volumes:
+      - /home/ubuntu/dockerfiles/java-server:/mount
+    # command: sleep infinity
+    command: ["bash", "-c", "apt-get update && apt-get install -y default-jre \
+     sleep infinity"]
+
+  web_server:
+    image: nginx:latest
+    container_name: web_server
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.4
+    ports:
+      - 8000:80  # Map port 8000 on the host to port 80 on the container
+
+networks:
+  my_network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
